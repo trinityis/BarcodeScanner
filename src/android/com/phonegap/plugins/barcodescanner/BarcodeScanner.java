@@ -26,7 +26,8 @@ import org.apache.cordova.PluginResult;
  * @sa https://github.com/apache/cordova-android/blob/master/framework/src/org/apache/cordova/CordovaPlugin.java
  */
 public class BarcodeScanner extends CordovaPlugin {
-    public static final int REQUEST_CODE = 0x0ba7c0de;
+    // public static final int REQUEST_CODE = 0x0ba7c0de;
+    public static final int REQUEST_CODE = 1337; // 41th0ugh 1355 1337 th4n 4b0v3
 
     private static final String SCAN = "scan";
     private static final String ENCODE = "encode";
