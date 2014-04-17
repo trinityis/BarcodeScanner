@@ -13,9 +13,9 @@
         /**
          * Constructor.
          *
-         * @returns {BarcodeScanner}
+         * @returns {TrinityScanner}
          */
-        function BarcodeScanner() {
+        function TrinityScanner() {
 
             /**
              * Encoding constants.
@@ -42,55 +42,55 @@
          *    }
          * @param {Function} errorCallback
          */
-        BarcodeScanner.prototype.scan = function (successCallback, errorCallback) {
+        TrinityScanner.prototype.scan = function (successCallback, errorCallback) {
             if (errorCallback == null) {
                 errorCallback = function () {
                 };
             }
 
             if (typeof errorCallback != "function") {
-                console.log("BarcodeScanner.scan failure: failure parameter not a function");
+                console.log("TrinityScanner.scan failure: failure parameter not a function");
                 return;
             }
 
             if (typeof successCallback != "function") {
-                console.log("BarcodeScanner.scan failure: success callback parameter must be a function");
+                console.log("TrinityScanner.scan failure: success callback parameter must be a function");
                 return;
             }
 
-            exec(successCallback, errorCallback, 'BarcodeScanner', 'scan', []);
+            exec(successCallback, errorCallback, 'TrinityScanner', 'scan', []);
         };
 
         //-------------------------------------------------------------------
-        BarcodeScanner.prototype.encode = function (type, data, successCallback, errorCallback, options) {
+        TrinityScanner.prototype.encode = function (type, data, successCallback, errorCallback, options) {
             if (errorCallback == null) {
                 errorCallback = function () {
                 };
             }
 
             if (typeof errorCallback != "function") {
-                console.log("BarcodeScanner.encode failure: failure parameter not a function");
+                console.log("TrinityScanner.encode failure: failure parameter not a function");
                 return;
             }
 
             if (typeof successCallback != "function") {
-                console.log("BarcodeScanner.encode failure: success callback parameter must be a function");
+                console.log("TrinityScanner.encode failure: success callback parameter must be a function");
                 return;
             }
 
-            exec(successCallback, errorCallback, 'BarcodeScanner', 'encode', [
+            exec(successCallback, errorCallback, 'TrinityScanner', 'encode', [
                 {"type": type, "data": data, "options": options}
             ]);
         };
 
-        var barcodeScanner = new BarcodeScanner();
-        module.exports = barcodeScanner;
+        var trinityScanner = new TrinityScanner();
+        module.exports = trinityScanner;
 
     }
 
     ScannerLoader(require, exports, module);
 
-    cordova.define("cordova/plugin/BarcodeScanner", ScannerLoader);
+    cordova.define("cordova/plugin/TrinityScanner", ScannerLoader);
 
 
 

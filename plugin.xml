@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.phonegap.plugins.barcodescanner"
+    id="com.phonegap.plugins.trinityscanner"
     version="1.1.0">
 
-    <name>BarcodeScanner</name>
+    <name>TrinityScanner</name>
     <description>Scans Barcodes.</description>
     <license>MIT</license>
 
@@ -11,26 +11,26 @@
         <engine name="cordova" version=">=3.0.0" />
     </engines>    
 
-    <js-module src="www/barcodescanner.js" name="BarcodeScanner">
-        <clobbers target="cordova.plugins.barcodeScanner" />
+    <js-module src="www/trinityscanner.js" name="TrinityScanner">
+        <clobbers target="cordova.plugins.trinityScanner" />
     </js-module>
 
-    <asset src="www/barcodescanner.js" target="barcodescanner.js" />
+    <asset src="www/trinityscanner.js" target="trinityscanner.js" />
 
     <!-- ios -->
     <platform name="ios">
         <!-- Cordova >= 2.8 -->
         <config-file target="config.xml" parent="/*">
-            <feature name="BarcodeScanner">
-                <param name="ios-package" value="CDVBarcodeScanner" />
+            <feature name="TrinityScanner">
+                <param name="ios-package" value="CDVTrinityScanner" />
             </feature>
         </config-file>
 
-        <resource-file src="src/ios/scannerOverlay.xib" />
+        <resource-file src="src/ios/trinityscannerOverlay.xib" />
 
         <header-file src="src/ios/zxing-all-in-one.h" />
 
-        <source-file src="src/ios/CDVBarcodeScanner.mm" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/CDVTrinityScanner.mm" compiler-flags="-fno-objc-arc" />
         <source-file src="src/ios/zxing-all-in-one.cpp" />
 
         <framework src="libiconv.dylib" />
@@ -43,20 +43,20 @@
     <!-- android -->
     <platform name="android">
 
-        <source-file src="src/android/com/phonegap/plugins/barcodescanner/BarcodeScanner.java" target-dir="src/com/phonegap/plugins/barcodescanner" />
+        <source-file src="src/android/com/phonegap/plugins/trinityscanner/TrinityScanner.java" target-dir="src/com/phonegap/plugins/trinityscanner" />
         <!--
         <source-file src="R.java" target-dir="src/com/google/zxing/client/android" />
         -->
         
         <!--
         <config-file target="res/xml/plugins.xml" parent="/plugins">
-            <plugin name="BarcodeScanner" value="com.phonegap.plugins.barcodescanner.BarcodeScanner"/>
+            <plugin name="TrinityScanner" value="com.phonegap.plugins.trinityscanner.TrinityScanner"/>
         </config-file>
         -->
 
         <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="BarcodeScanner">
-                <param name="android-package" value="com.phonegap.plugins.barcodescanner.BarcodeScanner" />
+            <feature name="TrinityScanner">
+                <param name="android-package" value="com.phonegap.plugins.trinityscanner.TrinityScanner" />
             </feature>
         </config-file>
 
@@ -70,13 +70,13 @@
                 android:windowSoftInputMode="stateAlwaysHidden"
                 android:exported="false">
                 <intent-filter>
-                    <action android:name="com.phonegap.plugins.barcodescanner.SCAN"/>
+                    <action android:name="com.phonegap.plugins.trinityscanner.SCAN"/>
                     <category android:name="android.intent.category.DEFAULT"/>
                 </intent-filter>
             </activity>
             <activity android:name="com.google.zxing.client.android.encode.EncodeActivity" android:label="@string/share_name">
                 <intent-filter>
-                    <action android:name="com.phonegap.plugins.barcodescanner.ENCODE"/>
+                    <action android:name="com.phonegap.plugins.trinityscanner.ENCODE"/>
                     <category android:name="android.intent.category.DEFAULT"/>
                 </intent-filter>
             </activity>

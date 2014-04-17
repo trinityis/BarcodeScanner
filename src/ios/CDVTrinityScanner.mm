@@ -23,7 +23,7 @@
 // Delegate to handle orientation functions
 // 
 //------------------------------------------------------------------------------
-@protocol CDVBarcodeScannerOrientationDelegate <NSObject>
+@protocol CDVTrinityScannerOrientationDelegate <NSObject>
 
 - (NSUInteger)supportedInterfaceOrientations;
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
@@ -38,13 +38,13 @@
 #define USE_SHUTTER 0
 
 //------------------------------------------------------------------------------
-@class CDVbcsProcessor;
-@class CDVbcsViewController;
+@class CDVtrinitybcsProcessor;
+@class CDVtrinitybcsViewController;
 
 //------------------------------------------------------------------------------
 // plugin class
 //------------------------------------------------------------------------------
-@interface CDVBarcodeScanner : CDVPlugin {}
+@interface CDVTrinityScanner : CDVPlugin {}
 - (NSString*)isScanNotPossible;
 - (void)scan:(CDVInvokedUrlCommand*)command;
 - (void)encode:(CDVInvokedUrlCommand*)command;
@@ -55,11 +55,11 @@
 //------------------------------------------------------------------------------
 // class that does the grunt work
 //------------------------------------------------------------------------------
-@interface CDVbcsProcessor : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate> {}
-@property (nonatomic, retain) CDVBarcodeScanner*           plugin;
+@interface CDVtrinitybcsProcessor : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate> {}
+@property (nonatomic, retain) CDVTrinityScanner*           plugin;
 @property (nonatomic, retain) NSString*                   callback;
 @property (nonatomic, retain) UIViewController*           parentViewController;
-@property (nonatomic, retain) CDVbcsViewController*        viewController;
+@property (nonatomic, retain) CDVtrinitybcsViewController*        viewController;
 @property (nonatomic, retain) AVCaptureSession*           captureSession;
 @property (nonatomic, retain) AVCaptureVideoPreviewLayer* previewLayer;
 @property (nonatomic, retain) NSString*                   alternateXib;
@@ -67,15 +67,15 @@
 @property (nonatomic)         BOOL                        is2D;
 @property (nonatomic)         BOOL                        capturing;
 
-- (id)initWithPlugin:(CDVBarcodeScanner*)plugin callback:(NSString*)callback parentViewController:(UIViewController*)parentViewController alterateOverlayXib:(NSString *)alternateXib;
-- (void)scanBarcode;
-- (void)barcodeScanSucceeded:(NSString*)text format:(NSString*)format;
-- (void)barcodeScanFailed:(NSString*)message;
-- (void)barcodeScanCancelled;
+- (id)initWithPlugin:(CDVTrinityScanner*)plugin callback:(NSString*)callback parentViewController:(UIViewController*)parentViewController alterateOverlayXib:(NSString *)alternateXib;
+- (void)scanTrinity;
+- (void)trinityScanSucceeded:(NSString*)text format:(NSString*)format;
+- (void)trinityScanFailed:(NSString*)message;
+- (void)trinityScanCancelled;
 - (void)openDialog;
 - (NSString*)setUpCaptureSession;
 - (void)captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection;
-- (NSString*)formatStringFrom:(zxing::BarcodeFormat)format;
+- (NSString*)formatStringFrom:(zxing::TrinityFormat)format;
 - (UIImage*)getImageFromSample:(CMSampleBufferRef)sampleBuffer;
 - (zxing::Ref<zxing::LuminanceSource>) getLuminanceSourceFromSample:(CMSampleBufferRef)sampleBuffer imageBytes:(uint8_t**)ptr;
 - (UIImage*) getImageFromLuminanceSource:(zxing::LuminanceSource*)luminanceSource;
@@ -85,15 +85,15 @@
 //------------------------------------------------------------------------------
 // view controller for the ui
 //------------------------------------------------------------------------------
-@interface CDVbcsViewController : UIViewController <CDVBarcodeScannerOrientationDelegate> {}
-@property (nonatomic, retain) CDVbcsProcessor*  processor;
+@interface CDVtrinitybcsViewController : UIViewController <CDVTrinityScannerOrientationDelegate> {}
+@property (nonatomic, retain) CDVtrinitybcsProcessor*  processor;
 @property (nonatomic, retain) NSString*        alternateXib;
 @property (nonatomic)         BOOL             shutterPressed;
 @property (nonatomic, retain) IBOutlet UIView* overlayView;
 // unsafe_unretained is equivalent to assign - used to prevent retain cycles in the property below
 @property (nonatomic, unsafe_unretained) id orientationDelegate;
 
-- (id)initWithProcessor:(CDVbcsProcessor*)processor alternateOverlay:(NSString *)alternateXib;
+- (id)initWithProcessor:(CDVtrinitybcsProcessor*)processor alternateOverlay:(NSString *)alternateXib;
 - (void)startCapturing;
 - (UIView*)buildOverlayView;
 - (UIImage*)buildReticleImage;
@@ -105,7 +105,7 @@
 //------------------------------------------------------------------------------
 // plugin class
 //------------------------------------------------------------------------------
-@implementation CDVBarcodeScanner
+@implementation CDVTrinityScanner
 
 //--------------------------------------------------------------------------
 - (NSString*)isScanNotPossible {
@@ -121,7 +121,7 @@
 
 //--------------------------------------------------------------------------
 - (void)scan:(CDVInvokedUrlCommand*)command {
-    CDVbcsProcessor* processor;
+    CDVtrinitybcsProcessor* processor;
     NSString*       callback;
     NSString*       capabilityError;
     
@@ -140,15 +140,15 @@
         return;
     }
     
-    processor = [[CDVbcsProcessor alloc]
+    processor = [[CDVtrinitybcsProcessor alloc]
                  initWithPlugin:self
                  callback:callback
                  parentViewController:self.viewController
                  alterateOverlayXib:overlayXib
                  ];
     
-    // queue [processor scanBarcode] to run on the event loop
-    [processor performSelector:@selector(scanBarcode) withObject:nil afterDelay:0];
+    // queue [processor scanTrinity] to run on the event loop
+    [processor performSelector:@selector(scanTrinity) withObject:nil afterDelay:0];
 }
 
 //--------------------------------------------------------------------------
@@ -192,7 +192,7 @@
 //------------------------------------------------------------------------------
 // class that does the grunt work
 //------------------------------------------------------------------------------
-@implementation CDVbcsProcessor
+@implementation CDVtrinitybcsProcessor
 
 @synthesize plugin               = _plugin;
 @synthesize callback             = _callback;
@@ -206,7 +206,7 @@
 @synthesize capturing            = _capturing;
 
 //--------------------------------------------------------------------------
-- (id)initWithPlugin:(CDVBarcodeScanner*)plugin
+- (id)initWithPlugin:(CDVTrinityScanner*)plugin
             callback:(NSString*)callback
 parentViewController:(UIViewController*)parentViewController
   alterateOverlayXib:(NSString *)alternateXib {
@@ -241,14 +241,14 @@ parentViewController:(UIViewController*)parentViewController
 }
 
 //--------------------------------------------------------------------------
-- (void)scanBarcode {
+- (void)scanTrinity {
     NSString* errorMessage = [self setUpCaptureSession];
     if (errorMessage) {
-        [self barcodeScanFailed:errorMessage];
+        [self trinityScanFailed:errorMessage];
         return;
     }
     
-    self.viewController = [[[CDVbcsViewController alloc] initWithProcessor: self alternateOverlay:self.alternateXib] autorelease];
+    self.viewController = [[[CDVtrinitybcsViewController alloc] initWithProcessor: self alternateOverlay:self.alternateXib] autorelease];
     // here we set the orientation delegate to the MainViewController of the app (orientation controlled in the Project Settings)
     self.viewController.orientationDelegate = self.plugin.viewController;
     
@@ -265,7 +265,7 @@ parentViewController:(UIViewController*)parentViewController
 }
 
 //--------------------------------------------------------------------------
-- (void)barcodeScanDone {
+- (void)trinityScanDone {
     self.capturing = NO;
     [self.captureSession stopRunning];
     [self.parentViewController dismissModalViewControllerAnimated: YES];
@@ -279,20 +279,20 @@ parentViewController:(UIViewController*)parentViewController
 }
 
 //--------------------------------------------------------------------------
-- (void)barcodeScanSucceeded:(NSString*)text format:(NSString*)format {
-    [self barcodeScanDone];
+- (void)trinityScanSucceeded:(NSString*)text format:(NSString*)format {
+    [self trinityScanDone];
     [self.plugin returnSuccess:text format:format cancelled:FALSE callback:self.callback];
 }
 
 //--------------------------------------------------------------------------
-- (void)barcodeScanFailed:(NSString*)message {
-    [self barcodeScanDone];
+- (void)trinityScanFailed:(NSString*)message {
+    [self trinityScanDone];
     [self.plugin returnError:message callback:self.callback];
 }
 
 //--------------------------------------------------------------------------
-- (void)barcodeScanCancelled {
-    [self barcodeScanDone];
+- (void)trinityScanCancelled {
+    [self trinityScanDone];
     [self.plugin returnSuccess:@"" format:@"" cancelled:TRUE callback:self.callback];
 }
 
@@ -391,15 +391,15 @@ parentViewController:(UIViewController*)parentViewController
     
     try {
         DecodeHints decodeHints;
-        decodeHints.addFormat(BarcodeFormat_QR_CODE);
-        decodeHints.addFormat(BarcodeFormat_DATA_MATRIX);
-        decodeHints.addFormat(BarcodeFormat_UPC_E);
-        decodeHints.addFormat(BarcodeFormat_UPC_A);
-        decodeHints.addFormat(BarcodeFormat_EAN_8);
-        decodeHints.addFormat(BarcodeFormat_EAN_13);
-        decodeHints.addFormat(BarcodeFormat_CODE_128);
-        decodeHints.addFormat(BarcodeFormat_CODE_39);
-        //            decodeHints.addFormat(BarcodeFormat_ITF);   causing crashes
+        decodeHints.addFormat(TrinityFormat_QR_CODE);
+        decodeHints.addFormat(TrinityFormat_DATA_MATRIX);
+        decodeHints.addFormat(TrinityFormat_UPC_E);
+        decodeHints.addFormat(TrinityFormat_UPC_A);
+        decodeHints.addFormat(TrinityFormat_EAN_8);
+        decodeHints.addFormat(TrinityFormat_EAN_13);
+        decodeHints.addFormat(TrinityFormat_CODE_128);
+        decodeHints.addFormat(TrinityFormat_CODE_39);
+        //            decodeHints.addFormat(TrinityFormat_ITF);   causing crashes
         
         // here's the meat of the decode process
         Ref<LuminanceSource>   luminanceSource   ([self getLuminanceSourceFromSample: sampleBuffer imageBytes:&imageBytes]);
@@ -409,14 +409,14 @@ parentViewController:(UIViewController*)parentViewController
         Ref<MultiFormatReader> reader            (new MultiFormatReader());
         Ref<Result>            result            (reader->decode(bitmap, decodeHints));
         Ref<String>            resultText        (result->getText());
-        BarcodeFormat          formatVal =       result->getBarcodeFormat();
+        TrinityFormat          formatVal =       result->getTrinityFormat();
         NSString*              format    =       [self formatStringFrom:formatVal];
         
         
         const char* cString      = resultText->getText().c_str();
         NSString*   resultString = [[[NSString alloc] initWithCString:cString encoding:NSUTF8StringEncoding] autorelease];
         
-        [self barcodeScanSucceeded:resultString format:format];
+        [self trinityScanSucceeded:resultString format:format];
         
     }
     catch (zxing::ReaderException &rex) {
@@ -429,7 +429,7 @@ parentViewController:(UIViewController*)parentViewController
     }
     catch (...) {
         //            NSLog(@"decoding: unknown exception");
-        //            [self barcodeScanFailed:@"unknown exception decoding barcode"];
+        //            [self trinityScanFailed:@"unknown exception decoding trinity"];
     }
     
     //        NSTimeInterval timeElapsed  = [NSDate timeIntervalSinceReferenceDate] - timeStart;
@@ -442,18 +442,18 @@ parentViewController:(UIViewController*)parentViewController
 }
 
 //--------------------------------------------------------------------------
-// convert barcode format to string
+// convert trinity format to string
 //--------------------------------------------------------------------------
-- (NSString*)formatStringFrom:(zxing::BarcodeFormat)format {
-    if (format == zxing::BarcodeFormat_QR_CODE)      return @"QR_CODE";
-    if (format == zxing::BarcodeFormat_DATA_MATRIX)  return @"DATA_MATRIX";
-    if (format == zxing::BarcodeFormat_UPC_E)        return @"UPC_E";
-    if (format == zxing::BarcodeFormat_UPC_A)        return @"UPC_A";
-    if (format == zxing::BarcodeFormat_EAN_8)        return @"EAN_8";
-    if (format == zxing::BarcodeFormat_EAN_13)       return @"EAN_13";
-    if (format == zxing::BarcodeFormat_CODE_128)     return @"CODE_128";
-    if (format == zxing::BarcodeFormat_CODE_39)      return @"CODE_39";
-    if (format == zxing::BarcodeFormat_ITF)          return @"ITF";
+- (NSString*)formatStringFrom:(zxing::TrinityFormat)format {
+    if (format == zxing::TrinityFormat_QR_CODE)      return @"QR_CODE";
+    if (format == zxing::TrinityFormat_DATA_MATRIX)  return @"DATA_MATRIX";
+    if (format == zxing::TrinityFormat_UPC_E)        return @"UPC_E";
+    if (format == zxing::TrinityFormat_UPC_A)        return @"UPC_A";
+    if (format == zxing::TrinityFormat_EAN_8)        return @"EAN_8";
+    if (format == zxing::TrinityFormat_EAN_13)       return @"EAN_13";
+    if (format == zxing::TrinityFormat_CODE_128)     return @"CODE_128";
+    if (format == zxing::TrinityFormat_CODE_39)      return @"CODE_39";
+    if (format == zxing::TrinityFormat_ITF)          return @"ITF";
     return @"???";
 }
 
@@ -600,14 +600,14 @@ parentViewController:(UIViewController*)parentViewController
 //------------------------------------------------------------------------------
 // view controller for the ui
 //------------------------------------------------------------------------------
-@implementation CDVbcsViewController
+@implementation CDVtrinitybcsViewController
 @synthesize processor      = _processor;
 @synthesize shutterPressed = _shutterPressed;
 @synthesize alternateXib   = _alternateXib;
 @synthesize overlayView    = _overlayView;
 
 //--------------------------------------------------------------------------
-- (id)initWithProcessor:(CDVbcsProcessor*)processor alternateOverlay:(NSString *)alternateXib {
+- (id)initWithProcessor:(CDVtrinitybcsProcessor*)processor alternateOverlay:(NSString *)alternateXib {
     self = [super init];
     if (!self) return self;
     
@@ -676,7 +676,7 @@ parentViewController:(UIViewController*)parentViewController
 
 //--------------------------------------------------------------------------
 - (IBAction)cancelButtonPressed:(id)sender {
-    [self.processor performSelector:@selector(barcodeScanCancelled) withObject:nil afterDelay:0];
+    [self.processor performSelector:@selector(trinityScanCancelled) withObject:nil afterDelay:0];
 }
 
 //--------------------------------------------------------------------------
@@ -817,7 +817,7 @@ parentViewController:(UIViewController*)parentViewController
     return result;
 }
 
-#pragma mark CDVBarcodeScannerOrientationDelegate
+#pragma mark CDVTrinityScannerOrientationDelegate
 
 - (BOOL)shouldAutorotate
 {   
