@@ -6,7 +6,7 @@
  * Copyright (c) 2011, IBM Corporation
  */
 
-    var ScannerLoader = function (require, exports, module) {
+    var TrinityScannerLoader = function (require, exports, module) {
 
         var exec = require("cordova/exec");
 
@@ -88,7 +88,7 @@
 
     }
 
-    ScannerLoader(require, exports, module);
+    TrinityScannerLoader(require, exports, module);
 
     cordova.define("cordova/plugin/TrinityScanner", ScannerLoader);
 
